@@ -1,0 +1,7 @@
+Requires Simple Fast Media Layer Library:
+https://www.sfml-dev.org/
+
+Linking and build instructions can be found here:
+https://www.sfml-dev.org/tutorials/2.5/
+
+I built the project with Visual Studio C++ 2017 and SFML version 2.4.
