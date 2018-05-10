@@ -34,11 +34,14 @@ CGameObject::~CGameObject()
 {
 }
 
+// Returns the name of the current GameObject
 std::string CGameObject::getName()
 {
 	return name;
 }
 
+// Returns the type of the current GameObject
+// (Carrot, Mountain, or Toon)
 GameObjectType CGameObject::getType()
 {
 	return type;
@@ -53,6 +56,7 @@ void CGameObject::removeFromBoard(GameBoard* gameBoard)
 
 	if (obj == this)
 	{
+		// Set board square to a nullptr
 		gameBoard->set(gridPos.x, gridPos.y, nullptr);
 	}
 }
@@ -89,11 +93,15 @@ bool CGameObject::loadResource()
 		return false;
 	}
 
+	// Load the texture file from disk
 	if (!texture.loadFromFile(textureFile))
 	{
 		return false;
 	}
 
+	// Set the spriteRect texture to the loaded texture.
+	// The spriteRect object is what is actually drawn to
+	// the screen.
 	spriteRect.setTexture(&texture, true);
 
 	return true;
@@ -105,13 +113,17 @@ void CGameObject::draw(sf::RenderWindow* renderWindow)
 {
 	std::lock_guard<std::mutex> guard(objMutex);
 
+	// Get the pixel rectangle for the grid cell at the GameObject's position
 	sf::FloatRect drawRect = sharedData->getGame()->getGridCellRect(gridPos.x, gridPos.y);
 
+	// Position and resize the prite to fit within the game board grid cell
 	spriteRect.setPosition(drawRect.left, drawRect.top);
 	spriteRect.setSize(sf::Vector2f(drawRect.width, drawRect.height));
 
+	// If the current GameObject is the winner, tint their sprite to a green color
 	if (sharedData->getWinner() == this) { spriteRect.setFillColor(sf::Color::Green); }
 
+	// Draw GameObject sprite to the render window
 	renderWindow->draw(spriteRect);
 }
 

@@ -8,7 +8,7 @@
 * Represents the Time Machine game and contains all
 * related game objects. Also draws the game board
 * and grid, as well as calling draw() on all
-* game objects.
+* game objects contained on the board.
 * ==============================================
 */
 
@@ -37,6 +37,7 @@ CTimeMachineGame::~CTimeMachineGame()
 	sharedData.clear();
 }
 
+// Prepares random number gen for board positioning
 void CTimeMachineGame::initRandom()
 {
 	randEngine = std::mt19937(randDevice());
@@ -94,6 +95,10 @@ bool CTimeMachineGame::createGameObjects()
 		sharedData.setMountain(newMtn);
 		placeOnBoardRandom(sharedData.getMountain());
 	}
+	else
+	{
+		bool objSuccess = false;
+	}
 
 	std::unique_ptr<CGameObject> newCarrotOne = std::make_unique<CGameObject>(&sharedData, CARROT_NAME, GameObjectType::Carrot, CARROT_TEXTURE);
 	if (tryLoadResource(newCarrotOne.get()))
@@ -101,12 +106,20 @@ bool CTimeMachineGame::createGameObjects()
 		sharedData.setCarrot(0, newCarrotOne);
 		placeOnBoardRandom(sharedData.getCarrot(0));
 	}
+	else
+	{
+		bool objSuccess = false;
+	}
 
 	std::unique_ptr<CGameObject> newCarrotTwo = std::make_unique<CGameObject>(&sharedData, CARROT_NAME, GameObjectType::Carrot, CARROT_TEXTURE);
 	if (tryLoadResource(newCarrotTwo.get()))
 	{
 		sharedData.setCarrot(1, newCarrotTwo);
 		placeOnBoardRandom(sharedData.getCarrot(1));
+	}
+	else
+	{
+		bool objSuccess = false;
 	}
 
 	return toonSucess && objSuccess;
@@ -118,10 +131,16 @@ bool CTimeMachineGame::createToons()
 {
 	std::cout << "........ Creating toons ...\n";
 
+	bool toonSuccess = true;
+
 	std::unique_ptr<CToon> newBunny = std::make_unique<CToon>(&sharedData, BUNNY_NAME, BUNNY_TEXTURE);
 	if (tryLoadResource(newBunny.get()))
 	{
 		sharedData.addToon(newBunny);
+	}
+	else
+	{
+		toonSuccess = false;
 	}
 
 	std::unique_ptr<CToon> newMarvin = std::make_unique<CMarvinMartian>(&sharedData, MARVIN_NAME, MARVIN_TEXTURE);
@@ -129,17 +148,29 @@ bool CTimeMachineGame::createToons()
 	{
 		sharedData.addToon(newMarvin);
 	}
+	else
+	{
+		toonSuccess = false;
+	}
 
 	std::unique_ptr<CToon> newTaz = std::make_unique<CToon>(&sharedData, TAZ_NAME, TAZ_TEXTURE);
 	if (tryLoadResource(newTaz.get()))
 	{
 		sharedData.addToon(newTaz);
 	}
+	else
+	{
+		toonSuccess = false;
+	}
 
 	std::unique_ptr<CToon> newTweety = std::make_unique<CToon>(&sharedData, TWEETY_NAME, TWEETY_TEXTURE);
 	if (tryLoadResource(newTweety.get()))
 	{
 		sharedData.addToon(newTweety);
+	}
+	else
+	{
+		toonSuccess = false;
 	}
 
 	int numToons = sharedData.getNumToons();
@@ -149,7 +180,7 @@ bool CTimeMachineGame::createToons()
 		placeOnBoardRandom(sharedData.getToon(i));
 	}
 
-	return true;
+	return toonSuccess;
 }
 
 // Attempts to load the sprites for the given CGameObject
@@ -230,6 +261,8 @@ void CTimeMachineGame::update(sf::RenderWindow* renderWindow)
 
 	CToon* winner = sharedData.getWinner();
 
+	// If a toon has won the game, end game
+	// and display the name of the winner
 	if (winner && sharedData.getGameActive())
 	{
 		sharedData.setGameActive(false);
@@ -248,26 +281,33 @@ void CTimeMachineGame::update(sf::RenderWindow* renderWindow)
 // Draws the game board and grid lines
 void CTimeMachineGame::drawGameBoard(sf::RenderWindow* renderWindow)
 {
+	// Create white background rectangle for game board
 	sf::RectangleShape backRect = sf::RectangleShape(sf::Vector2f(boardRect.width, boardRect.height));
 	backRect.setPosition(sf::Vector2f(boardRect.left, boardRect.top));
 	backRect.setFillColor(sf::Color::White);
 
+	// Draw game board background
 	renderWindow->draw(backRect);
 
+	// Create a black rectangle for a horizontal grid line
 	sf::RectangleShape horizontalLine = sf::RectangleShape(sf::Vector2f(boardRect.width, (float)BOARD_GRID_THICKNESS));
 	horizontalLine.setFillColor(sf::Color::Black);
 	
+	// Create a black rectangle for a vertical grid line
 	sf::RectangleShape verticalLine = sf::RectangleShape(sf::Vector2f((float)BOARD_GRID_THICKNESS, boardRect.height));
 	verticalLine.setFillColor(sf::Color::Black);
 
+	// Get the width in pixels of a single grid square on the game board
 	float cellWidth = getGridCellWidth();
 
+	// Draw all horizontal grid lines
 	for (int i = 0; i <= boardSize; i++)
 	{
 		horizontalLine.setPosition(boardRect.left, boardRect.top + (i * cellWidth));
 		renderWindow->draw(horizontalLine);
 	}
 
+	// Draw all vertical grid lines
 	for (int i = 0; i <= boardSize; i++)
 	{
 		verticalLine.setPosition(boardRect.left + (i * cellWidth), boardRect.top);
@@ -281,6 +321,8 @@ void CTimeMachineGame::drawGameObjects(sf::RenderWindow* renderWindow)
 	GameBoard* gameBoard = sharedData.getGameBoard();
 	int boardSize = gameBoard->getSize();
 
+	// Check each square on the game board, and draw the
+	// object placed on the square if it is not a nullptr
 	for (int y = 0; y < boardSize; y++)
 	{
 		for (int x = 0; x < boardSize; x++)
@@ -308,8 +350,11 @@ sf::FloatRect CTimeMachineGame::getGridCellRect(int x, int y)
 }
 
 // Checks for user input to speed up/slow down the game
+// The '+' key speeds up the game
+// The '-' key slows down the game
 void CTimeMachineGame::processUserInput()
 {
+	// Check for slow down key
 	if (!slowDownPressed && sf::Keyboard::isKeyPressed(INPUT_SLOWDOWN))
 	{
 		int newTurnWait = sharedData.getTurnWait();
@@ -326,6 +371,7 @@ void CTimeMachineGame::processUserInput()
 		slowDownPressed = false;
 	}
 
+	// Check for speed up key
 	if (!speedUpPressed && sf::Keyboard::isKeyPressed(INPUT_SPEEDUP))
 	{
 		int newTurnWait = sharedData.getTurnWait();

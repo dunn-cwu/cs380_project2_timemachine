@@ -41,6 +41,7 @@ protected:
 	sf::Time elapsedTime;
 	bool hasCarrot;
 
+	// SFML graphics stuff
 	sf::Texture carrotTexture;
 	sf::RectangleShape carrotSpriteRect;
 

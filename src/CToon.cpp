@@ -235,23 +235,24 @@ void CToon::tick()
 	// Get random new position for toon to move to
 	sf::Vector2i newPos = getRandomNewPos();
 
+	// Is there a Mountain/Carrot/Toon at the selected position?
 	if (!gameBoard->isOccupied(newPos.x, newPos.y))
 	{
-		// Selected position is empty, move toon
+		// The selected position is empty, so move toon
 		setGridPosition(newPos);
 	}
 	else
 	{
 		// Selected position is not empty.
-		// Get ptr to object at selected position.
+		// Get a pointer to the object at selected position.
 		CGameObject* otherObj = gameBoard->get(newPos.x, newPos.y);
 
 		// Attempt to pick up carrot at selected position.
 		// Returns false if obj is not a carrot.
 		bool carrotSuccess = tryTakeCarrot(gameBoard, otherObj);
 
-		// Attempt to pick climb mountain with carrot.
-		// Returns false if obj is not the mountain or toon does not
+		// Attempt to climb mountain with a carrot.
+		// Returns false if obj is not the mountain, or toon does not
 		// have a carrot.
 		bool mountainSuccess = tryClimbMountain(gameBoard, otherObj);
 

@@ -27,11 +27,13 @@ CSharedGameData::~CSharedGameData()
 	clear();
 }
 
+// Used to prevent thread collisions on shared data
 void CSharedGameData::lockMutex()
 {
 	objMutex.lock();
 }
 
+// Used to prevent thread collisions on shared data
 void CSharedGameData::unlockMutex()
 {
 	objMutex.unlock();
@@ -49,11 +51,14 @@ void CSharedGameData::clear()
 	carrotTwoObj.reset();
 }
 
+// Returns a pointer to the game class that the shared
+// data belongs to
 CTimeMachineGame* CSharedGameData::getGame()
 {
 	return game;
 }
 
+// Returns a pointer to the current game board state
 GameBoard* CSharedGameData::getGameBoard()
 {
 	return &gameBoard;

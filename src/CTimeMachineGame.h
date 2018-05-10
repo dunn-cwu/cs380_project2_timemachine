@@ -54,6 +54,7 @@ public:
 	CTimeMachineGame(int windowWidth, int windowHeight);
 	~CTimeMachineGame();
 
+	// Game board render positioning stuff
 	float getGridCellWidth();
 	sf::FloatRect getBoardRect();
 	sf::FloatRect getGridCellRect(int x, int y);

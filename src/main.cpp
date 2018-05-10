@@ -15,7 +15,7 @@
 int main(int argc, char **argv)
 {
 	// SFML Window stuff
-	sf::RenderWindow window(sf::VideoMode(720, 720), "CS380: Project 2 - Time Machine");
+	sf::RenderWindow window(sf::VideoMode(720, 720), "CS380: Project 2 - Time Machine (Press '+' to speed up, '-' to slow down game.)");
 	sf::Color clearColor = sf::Color(247, 241, 217, 255);
 	sf::Time frameWaitTime = sf::seconds(1.0f / 60.0f);
 
@@ -35,7 +35,7 @@ int main(int argc, char **argv)
 				window.close(); // User closed window
 			else if (event.type == sf::Event::Resized)
 			{
-				// User resized window
+				// User resized window, resize grid rect to fit within window
 				sf::FloatRect visibleArea(0, 0, (float)event.size.width, (float)event.size.height);
 				window.setView(sf::View(visibleArea));
 				tmGame.resizeBoardRect(window.getSize().x, window.getSize().y);
